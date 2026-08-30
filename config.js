@@ -4,7 +4,7 @@
 
 const CONFIG = {
   // Google Apps Script Web App URL (from your setup):
-  SCRIPT_URL: 'YOUR_APPS_SCRIPT_URL_HERE',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxJxATvvd-jUW5S8AAquDCZ2MBXqlNaIOWdIG-BesQeK5IUuDbyc_pSbe1k443E3NhM/exec',
 
   // Due Date (Friday 18th September 2026 by 3:30pm)
   // Used for the countdown timer
