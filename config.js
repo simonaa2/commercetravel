@@ -18,9 +18,24 @@ const CONFIG = {
   // Leave the array empty [] to use the fallback CLASS_CODE system instead.
   // -----------------------------------------------
   STUDENTS: [
-    { name: 'John Smith',       password: 'john101' },
-    { name: 'Jane Doe',         password: 'jane202' },
-    { name: 'Alex Johnson',     password: 'alex303' }
+    { name: 'Joshua Duffey', password: 'joshua27' },
+    { name: 'Tobias Filipek', password: 'tobias25' },
+    { name: 'Jasper Ghodosi', password: 'jasper25' },
+    { name: 'Charlie Jurd-Smith', password: 'charlie28' },
+    { name: 'Anthony Lattouf', password: 'anthony25' },
+    { name: 'Jacob Lattouf', password: 'jacob25' },
+    { name: 'Oliver Martin', password: 'oliver29' },
+    { name: 'Max Mirabello', password: 'max26' },
+    { name: 'Dominic Mobberley-Barreto', password: 'dominic26' },
+    { name: 'Noah Ntzeremes', password: 'noah26' },
+    { name: 'Patrick O\'Connor', password: 'patrick26' },
+    { name: 'Wachirawit (Shine) Sajjathitiyanond', password: 'shine29' },
+    { name: 'Jacob Salem', password: 'jacob29' },
+    { name: 'Luca Toffolo', password: 'luca28' },
+    { name: 'James Tzirtzilakis', password: 'james28' },
+    { name: 'William Tzirtzilakis', password: 'william28' },
+    { name: 'Kaiden Walker', password: 'kaiden27' },
+    { name: 'Jesper Whippy', password: 'jesper27' }
   ],
 
   // Fallback class code (only used if STUDENTS list is empty):
