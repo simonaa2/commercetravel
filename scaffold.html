@@ -640,7 +640,6 @@
     </div>
   </main>
 
-  <!-- PERSISTENT FOOTER FOR AUTO-SAVE & SUBMISSION -->
   <footer class="submission-bar">
     <div class="sub-status-info">
       <div class="autosave-tag">
@@ -649,7 +648,11 @@
       </div>
       <div id="submit-status" style="font-size:0.85rem; font-weight:600;"></div>
     </div>
-    <button class="btn-submit-final" id="submit-btn" onclick="openSubmitModal()">Submit Final Dossier</button>
+    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+      <button class="btn-submit-final" style="background: #1e293b; border-color: var(--border-light);" onclick="exportBudgetToCSV()" title="Download your budget as an Excel-compatible CSV file">📥 Export Budget (Excel)</button>
+      <button class="btn-submit-final" style="background: #115e59; border-color: rgba(20, 184, 166, 0.4);" onclick="exportDossierToPDF()" title="Open a print-friendly document to save as PDF / Google Doc">📥 Export Dossier (PDF/Doc)</button>
+      <button class="btn-submit-final" id="submit-btn" onclick="openSubmitModal()">🚀 Submit Final Dossier</button>
+    </div>
   </footer>
 
   <script src="config.js"></script>

@@ -806,3 +806,396 @@ async function submitDossier() {
     btn.disabled = false;
   }
 }
+
+// ===== 10. STUDENT EXPORT SYSTEMS (EXCEL & PDF/DOC) =====
+
+// Export the budget builder contents as a clean CSV file
+function exportBudgetToCSV() {
+  const currencyCode = document.getElementById('budget-currency-code').value || 'USD';
+  const exchangeRate = parseFloat(document.getElementById('budget-exchange-rate').value) || 1;
+  
+  let csvContent = "Category,Description,Cost (Foreign),Currency,Exchange Rate,Cost (AUD)\r\n";
+  let baseTotal = 0;
+
+  budgetItems.forEach(item => {
+    let audCost = item.isAUDDirect ? item.audCost : (item.foreignCost / exchangeRate);
+    baseTotal += audCost;
+    
+    const cat = `"${item.category.replace(/"/g, '""')}"`;
+    const desc = `"${item.description.replace(/"/g, '""')}"`;
+    const foreign = item.isAUDDirect ? "0" : item.foreignCost.toFixed(2);
+    const curr = item.isAUDDirect ? "AUD" : currencyCode;
+    const rate = item.isAUDDirect ? "1.0" : exchangeRate.toFixed(4);
+    const aud = audCost.toFixed(2);
+
+    csvContent += `${cat},${desc},${foreign},${curr},${rate},${aud}\r\n`;
+  });
+
+  // Calculate contingency
+  let contingency = parseFloat(document.getElementById('budget-contingency-override')?.value);
+  if (isNaN(contingency)) {
+    contingency = baseTotal * 0.08;
+    if (contingency < 500) contingency = 500;
+    if (contingency > 1000) contingency = 1000;
+  }
+  const grandTotal = baseTotal + contingency;
+
+  csvContent += `\r\n`;
+  csvContent += `,,,,,Base Travel Expenses,${baseTotal.toFixed(2)} AUD\r\n`;
+  csvContent += `,,,,,Contingency Fund Buffer,${contingency.toFixed(2)} AUD\r\n`;
+  csvContent += `,,,,,GRAND TOTAL SPEND,${grandTotal.toFixed(2)} AUD\r\n`;
+
+  // Download trigger
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const filename = `${studentName.replace(/\s+/g,'_')}_Travel_Budget.csv`;
+  
+  if (navigator.msSaveBlob) { // IE 10+
+    navigator.msSaveBlob(blob, filename);
+  } else {
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+}
+
+// Generate a clean, formal print window of the student dossier and call print (allows Save as PDF/Doc)
+function exportDossierToPDF() {
+  const data = collectAllData();
+  const printWin = window.open('', '_blank');
+  
+  if (!printWin) {
+    alert("Popup blocker blocked the download window. Please allow popups for this site and try again.");
+    return;
+  }
+
+  // Build itinerary table HTML for print
+  const duration = parseInt(data['trip-duration']) || 7;
+  let itineraryRows = '';
+  try {
+    const itin = JSON.parse(data['itinerary-serialized'] || '{}');
+    for (let i = 1; i <= duration; i++) {
+      itineraryRows += `
+        <tr>
+          <td><strong>Day ${i}</strong></td>
+          <td>${itin[`itinerary-day${i}-morning`] || ''}</td>
+          <td>${itin[`itinerary-day${i}-afternoon`] || ''}</td>
+          <td>${itin[`itinerary-day${i}-evening`] || ''}</td>
+          <td>${itin[`itinerary-day${i}-overnight`] || ''}</td>
+          <td style="text-align:center;">${itin[`itinerary-day${i}-cultural`] === 'true' ? 'Yes' : 'No'}</td>
+        </tr>
+      `;
+    }
+  } catch(e) {
+    itineraryRows = '<tr><td colspan="6">No itinerary planned.</td></tr>';
+  }
+
+  // Build budget table HTML for print
+  let budgetRows = '';
+  let grandTotalAUD = 0;
+  try {
+    const budget = JSON.parse(data['budget-serialized'] || '{}');
+    const rate = budget.exchangeRate || 1;
+    const cur = budget.currencyCode || 'USD';
+    let baseTotal = 0;
+    
+    (budget.items || []).forEach(item => {
+      const itemAud = item.isAUDDirect ? item.audCost : (item.foreignCost / rate);
+      baseTotal += itemAud;
+      budgetRows += `
+        <tr>
+          <td>${item.category}</td>
+          <td>${item.description}</td>
+          <td>${item.isAUDDirect ? '—' : (item.foreignCost.toFixed(2) + ' ' + cur)}</td>
+          <td>${item.isAUDDirect ? '1.00' : rate.toFixed(4)}</td>
+          <td>$${itemAud.toFixed(2)} AUD</td>
+        </tr>
+      `;
+    });
+    
+    const contingency = budget.contingencyOverride !== undefined ? budget.contingencyOverride : (baseTotal * 0.08);
+    grandTotalAUD = baseTotal + contingency;
+    
+    budgetRows += `
+      <tr class="summary-line" style="border-top: 2px solid #000; font-weight:bold;">
+        <td colspan="4" style="text-align:right;">Base Expenses:</td>
+        <td>$${baseTotal.toFixed(2)} AUD</td>
+      </tr>
+      <tr class="summary-line" style="font-weight:bold;">
+        <td colspan="4" style="text-align:right;">Contingency Fund Buffer:</td>
+        <td>$${contingency.toFixed(2)} AUD</td>
+      </tr>
+      <tr class="summary-line" style="font-weight:bold; font-size:1.1em; border-bottom: 2px double #000;">
+        <td colspan="4" style="text-align:right;">GRAND TOTAL SPEND:</td>
+        <td>$${grandTotalAUD.toFixed(2)} AUD</td>
+      </tr>
+    `;
+  } catch(e) {
+    budgetRows = '<tr><td colspan="5">No budget items calculated.</td></tr>';
+  }
+
+  const travelThemeText = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Year 10 Commerce Travel Portfolio - ${data.studentName}</title>
+      <style>
+        @page { size: A4; margin: 20mm; }
+        body { font-family: 'Georgia', 'Times New Roman', serif; color: #111; line-height: 1.5; font-size: 11pt; background:#fff; }
+        .print-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .print-header h1 { font-family: 'Arial', sans-serif; font-size: 22pt; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .print-header h2 { font-family: 'Arial', sans-serif; font-size: 13pt; font-weight: normal; margin: 5px 0 15px; color: #555; }
+        .student-details { display: table; width: 100%; border: 1px solid #000; padding: 10px; margin-bottom: 2rem; font-family: 'Arial', sans-serif; font-size: 10pt; }
+        .sd-row { display: table-row; }
+        .sd-cell { display: table-cell; padding: 4px 10px; }
+        .section-header { font-family: 'Arial', sans-serif; font-size: 14pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000; margin-top: 2rem; margin-bottom: 1rem; padding-bottom: 4px; page-break-after: avoid; }
+        .field-box { margin-bottom: 1.2rem; }
+        .field-label { font-family: 'Arial', sans-serif; font-weight: bold; font-size: 9.5pt; text-transform: uppercase; color: #333; margin-bottom: 4px; }
+        .field-value { font-size: 11pt; text-align: justify; margin-left: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 1.5rem; page-break-inside: avoid; }
+        th { background: #f2f2f2; border: 1px solid #000; font-family: 'Arial', sans-serif; font-weight: bold; font-size: 9pt; padding: 6px 10px; text-transform: uppercase; text-align: left; }
+        td { border: 1px solid #000; padding: 6px 10px; font-size: 9.5pt; vertical-align: top; }
+        .quote-grid { display: flex; gap: 1.5rem; margin-bottom: 1rem; page-break-inside: avoid; }
+        .quote-col { flex: 1; border: 1px solid #ccc; padding: 10px; border-radius: 4px; background: #fafafa; }
+        .quote-title { font-family: 'Arial', sans-serif; font-weight: bold; font-size: 9.5pt; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 8px; text-transform: uppercase; }
+        .page-break { page-break-before: always; }
+      </style>
+    </head>
+    <body>
+
+      <div class="print-header">
+        <h1>Assessment Task 3: Client Travel Dossier</h1>
+        <h2>Year 10 Commerce — Travel Consultant Project</h2>
+      </div>
+
+      <div class="student-details">
+        <div class="sd-row">
+          <div class="sd-cell" style="width:15%"><strong>Student Name:</strong></div>
+          <div class="sd-cell">${data.studentName}</div>
+          <div class="sd-cell" style="width:15%"><strong>Due Date:</strong></div>
+          <div class="sd-cell">Monday 18th Sept 3:30pm</div>
+        </div>
+        <div class="sd-row">
+          <div class="sd-cell"><strong>Class Code:</strong></div>
+          <div class="sd-cell">${data.classCode}</div>
+          <div class="sd-cell"><strong>Weighting:</strong></div>
+          <div class="sd-cell">25%</div>
+        </div>
+      </div>
+
+      <!-- PART A -->
+      <div class="section-header">Part A: Destination Profile &amp; Itinerary</div>
+      
+      <div class="quote-grid">
+        <div class="quote-col" style="background:#fff; border: 1px solid #000;">
+          <div class="field-label">Selected Destination</div>
+          <div class="field-value">${data['dest-country'] || 'Not specified'}</div>
+        </div>
+        <div class="quote-col" style="background:#fff; border: 1px solid #000;">
+          <div class="field-label">Primary Type of Tourism</div>
+          <div class="field-value">${data['tourism-type'] || 'Not specified'}</div>
+        </div>
+      </div>
+
+      <div class="field-box">
+        <div class="field-label">Destination Suitability Justification (For 18–25 Age Demographic)</div>
+        <div class="field-value">${data['dest-reason'] || 'Not entered.'}</div>
+      </div>
+
+      <div class="field-label" style="margin-top: 1.5rem;">7–${duration} Day Travel Itinerary Schedule</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50px;">Day</th>
+            <th>Morning Plan</th>
+            <th>Afternoon Activity</th>
+            <th>Evening Plan</th>
+            <th>Overnight Stay</th>
+            <th style="width: 60px; text-align:center;">Cultural</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itineraryRows}
+        </tbody>
+      </table>
+
+      <div class="page-break"></div>
+
+      <!-- FLIGHT QUOTES -->
+      <div class="field-label" style="margin-top: 1rem;">Comparative Return Flight Quotes (Sydney Departure)</div>
+      <div class="quote-grid">
+        <div class="quote-col">
+          <div class="quote-title">Option 1 (Selected Airline)</div>
+          <strong>Airline:</strong> ${data['flight1-airline'] || '—'}<br/>
+          <strong>Flight Number:</strong> ${data['flight1-number'] || '—'}<br/>
+          <strong>Baggage Limits:</strong> ${data['flight1-baggage'] || '—'}<br/>
+          <strong>Total Price:</strong> $${data['flight1-price'] || '0'} AUD<br/>
+          <strong>Link:</strong> <span style="font-size:8pt; word-break:break-all;">${data['flight1-link'] || '—'}</span>
+        </div>
+        <div class="quote-col">
+          <div class="quote-title">Option 2 (Comparison)</div>
+          <strong>Airline:</strong> ${data['flight2-airline'] || '—'}<br/>
+          <strong>Flight Number:</strong> ${data['flight2-number'] || '—'}<br/>
+          <strong>Baggage Limits:</strong> ${data['flight2-baggage'] || '—'}<br/>
+          <strong>Total Price:</strong> $${data['flight2-price'] || '0'} AUD<br/>
+          <strong>Link:</strong> <span style="font-size:8pt; word-break:break-all;">${data['flight2-link'] || '—'}</span>
+        </div>
+      </div>
+      <div class="field-box">
+        <div class="field-label">Flight Selection Justification</div>
+        <div class="field-value">${data['flight-selection-reason'] || 'Not entered.'}</div>
+      </div>
+
+      <!-- ACCOMMODATION QUOTES -->
+      <div class="field-label" style="margin-top: 1.5rem;">Comparative Accommodation Quotes</div>
+      <div class="quote-grid">
+        <div class="quote-col">
+          <div class="quote-title">Option 1</div>
+          <strong>Property:</strong> ${data['acc1-name'] || '—'}<br/>
+          <strong>Location:</strong> ${data['acc1-location'] || '—'}<br/>
+          <strong>Rate per Night:</strong> $${data['acc1-rate'] || '0'} AUD<br/>
+          <strong>Link:</strong> <span style="font-size:8pt; word-break:break-all;">${data['acc1-link'] || '—'}</span>
+        </div>
+        <div class="quote-col">
+          <div class="quote-title">Option 2</div>
+          <strong>Property:</strong> ${data['acc2-name'] || '—'}<br/>
+          <strong>Location:</strong> ${data['acc2-location'] || '—'}<br/>
+          <strong>Rate per Night:</strong> $${data['acc2-rate'] || '0'} AUD<br/>
+          <strong>Link:</strong> <span style="font-size:8pt; word-break:break-all;">${data['acc2-link'] || '—'}</span>
+        </div>
+      </div>
+      <div class="field-box">
+        <div class="field-label">Accommodation Selection Justification</div>
+        <div class="field-value">${data['acc-selection-reason'] || 'Not entered.'}</div>
+      </div>
+
+      <div class="page-break"></div>
+
+      <!-- PART B -->
+      <div class="section-header">Part B: Financial Budget Summary</div>
+      <div class="field-box">
+        <div class="field-label">External Spreadsheet Link</div>
+        <div class="field-value">
+          <a href="${data['external-spreadsheet-url'] || '#'}" target="_blank">${data['external-spreadsheet-url'] || 'Not provided'}</a>
+        </div>
+      </div>
+      <div class="field-label">Draft Budget Conversion Table</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Foreign Price</th>
+            <th>Exchange Rate</th>
+            <th>Cost (AUD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${budgetRows}
+        </tbody>
+      </table>
+
+      <!-- PART C -->
+      <div class="section-header" style="margin-top: 2rem;">Part C: Smartraveller Due Diligence</div>
+      <div class="quote-grid">
+        <div class="quote-col" style="background:#fff; border: 1px solid #000;">
+          <div class="field-label">DFAT Advisory Level</div>
+          <div class="field-value"><strong>${data['smartraveller-level'] || 'Not specified'}</strong></div>
+        </div>
+        <div class="quote-col" style="background:#fff; border: 1px solid #000;">
+          <div class="field-label">Passport Entry Rules</div>
+          <div class="field-value">${data['passport-validity'] || 'Not specified'}</div>
+        </div>
+      </div>
+
+      <div class="field-label">Local Safety Warnings Sourced</div>
+      <ul style="margin-left: 1.5rem; margin-bottom: 1rem; font-size: 10pt;">
+        <li>Warning 1: ${data['safety-warning-1'] || '—'}</li>
+        <li>Warning 2: ${data['safety-warning-2'] || '—'}</li>
+      </ul>
+
+      <div class="field-box">
+        <div class="field-label">Tourist Visa Requirements</div>
+        <div class="field-value">${data['visa-requirement'] || '—'}</div>
+      </div>
+
+      <div class="quote-grid" style="margin-top: 1.5rem;">
+        <div class="quote-col">
+          <div class="quote-title">⚖️ Local Laws (Different from Australia)</div>
+          1. ${data['local-law-1'] || '—'}<br/>
+          2. ${data['local-law-2'] || '—'}
+        </div>
+        <div class="quote-col">
+          <div class="quote-title">🤝 Cultural Customs / Dress Codes</div>
+          1. ${data['cultural-custom-1'] || '—'}<br/>
+          2. ${data['cultural-custom-2'] || '—'}
+        </div>
+      </div>
+
+      <div class="field-label" style="margin-top: 1.5rem;">Comparative Travel Insurance Sourcing</div>
+      <div class="quote-grid">
+        <div class="quote-col">
+          <div class="quote-title">Insurance Option 1</div>
+          <strong>Provider:</strong> ${data['ins1-provider'] || '—'}<br/>
+          <strong>Medical Cover:</strong> ${data['ins1-medical'] || '—'}<br/>
+          <strong>Excess Fee:</strong> $${data['ins1-excess'] || '0'} AUD<br/>
+          <strong>Premium:</strong> $${data['ins1-premium'] || '0'} AUD<br/>
+          <strong>Link:</strong> <span style="font-size:8pt; word-break:break-all;">${data['ins1-link'] || '—'}</span>
+        </div>
+        <div class="quote-col">
+          <div class="quote-title">Insurance Option 2</div>
+          <strong>Provider:</strong> ${data['ins2-provider'] || '—'}<br/>
+          <strong>Medical Cover:</strong> ${data['ins2-medical'] || '—'}<br/>
+          <strong>Excess Fee:</strong> $${data['ins2-excess'] || '0'} AUD<br/>
+          <strong>Premium:</strong> $${data['ins2-premium'] || '0'} AUD<br/>
+          <strong>Link:</strong> <span style="font-size:8pt; word-break:break-all;">${data['ins2-link'] || '—'}</span>
+        </div>
+      </div>
+      <div class="field-box">
+        <div class="field-label">Chosen Policy and Selection Justification (Selected: ${data['ins-selected'] || '—'})</div>
+        <div class="field-value">${data['ins-justification'] || '—'}</div>
+      </div>
+
+      <div class="page-break"></div>
+
+      <!-- PART D -->
+      <div class="section-header">Part D: Emergency Crisis Management Plan</div>
+      <div class="field-box">
+        <div class="field-label">Selected Scenario</div>
+        <div class="field-value" style="font-weight:bold; color:#7f1d1d;">CHOICE: ${data['emergency-scenario'] ? data['emergency-scenario'].toUpperCase() : 'None selected'}</div>
+      </div>
+      
+      <div class="field-box">
+        <div class="field-label">First 24 Hours: Immediate Action Steps</div>
+        <div class="field-value" style="border: 1px solid #ccc; padding: 10px; background: #fafafa; border-radius: 4px;">${data['em-step1'] || '—'}</div>
+      </div>
+      <div class="field-box">
+        <div class="field-label">Embassy Support: What they can and cannot assist with</div>
+        <div class="field-value" style="border: 1px solid #ccc; padding: 10px; background: #fafafa; border-radius: 4px;">${data['em-step2'] || '—'}</div>
+      </div>
+      <div class="field-box">
+        <div class="field-label">Emergency Funds &amp; Claims: Contacting Insurer and Accessing Money</div>
+        <div class="field-value" style="border: 1px solid #ccc; padding: 10px; background: #fafafa; border-radius: 4px;">${data['em-step3'] || '—'}</div>
+      </div>
+
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.print();
+          }, 500);
+        }
+      </script>
+    </body>
+    </html>
+  `;
+  
+  printWin.document.write(travelThemeText);
+  printWin.document.close();
+}
+
