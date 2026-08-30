@@ -1199,3 +1199,337 @@ function exportDossierToPDF() {
   printWin.document.close();
 }
 
+// Generate an offline Word Document (.doc) pre-populated with student entries
+function exportDossierToWord() {
+  const data = collectAllData();
+  
+  // Build itinerary table HTML for print
+  const duration = parseInt(data['trip-duration']) || 7;
+  let itineraryRows = '';
+  try {
+    const itin = JSON.parse(data['itinerary-serialized'] || '{}');
+    for (let i = 1; i <= duration; i++) {
+      itineraryRows += `
+        <tr>
+          <td>Day ${i}</td>
+          <td>${itin[`itinerary-day${i}-morning`] || ''}</td>
+          <td>${itin[`itinerary-day${i}-afternoon`] || ''}</td>
+          <td>${itin[`itinerary-day${i}-evening`] || ''}</td>
+          <td>${itin[`itinerary-day${i}-overnight`] || ''}</td>
+          <td style="text-align:center;">${itin[`itinerary-day${i}-cultural`] === 'true' ? 'Yes' : 'No'}</td>
+        </tr>
+      `;
+    }
+  } catch(e) {
+    itineraryRows = '<tr><td colspan="6">No itinerary planned.</td></tr>';
+  }
+
+  // Build budget table HTML for print
+  let budgetRows = '';
+  let grandTotalAUD = 0;
+  try {
+    const budget = JSON.parse(data['budget-serialized'] || '{}');
+    const rate = budget.exchangeRate || 1;
+    const cur = budget.currencyCode || 'USD';
+    let baseTotal = 0;
+    
+    (budget.items || []).forEach(item => {
+      const itemAud = item.isAUDDirect ? item.audCost : (item.foreignCost / rate);
+      baseTotal += itemAud;
+      budgetRows += `
+        <tr>
+          <td>${item.category}</td>
+          <td>${item.description}</td>
+          <td>${item.isAUDDirect ? '—' : (item.foreignCost.toFixed(2) + ' ' + cur)}</td>
+          <td>${item.isAUDDirect ? '1.00' : rate.toFixed(4)}</td>
+          <td>$${itemAud.toFixed(2)} AUD</td>
+        </tr>
+      `;
+    });
+    
+    const contingency = budget.contingencyOverride !== undefined ? budget.contingencyOverride : (baseTotal * 0.08);
+    grandTotalAUD = baseTotal + contingency;
+    
+    budgetRows += `
+      <tr style="font-weight:bold;">
+        <td colspan="4" style="text-align:right;">Base Expenses:</td>
+        <td>$${baseTotal.toFixed(2)} AUD</td>
+      </tr>
+      <tr style="font-weight:bold;">
+        <td colspan="4" style="text-align:right;">Contingency Fund Buffer:</td>
+        <td>$${contingency.toFixed(2)} AUD</td>
+      </tr>
+      <tr style="font-weight:bold; font-size:1.1em;">
+        <td colspan="4" style="text-align:right;">GRAND TOTAL SPEND:</td>
+        <td>$${grandTotalAUD.toFixed(2)} AUD</td>
+      </tr>
+    `;
+  } catch(e) {
+    budgetRows = '<tr><td colspan="5">No budget items calculated.</td></tr>';
+  }
+
+  const docHtml = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head>
+      <title>Year 10 Commerce Travel Portfolio - ${data.studentName}</title>
+      <!--[if gte mso 9]>
+      <xml>
+        <w:WordDocument>
+          <w:View>Print</w:View>
+          <w:Zoom>100</w:Zoom>
+          <w:DoNotOptimizeForBrowser/>
+        </w:WordDocument>
+      </xml>
+      <![endif]-->
+      <style>
+        body { font-family: 'Arial', sans-serif; color: #111; line-height: 1.5; font-size: 11pt; }
+        .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 12px; margin-bottom: 25px; }
+        .header h1 { font-size: 20pt; margin: 0; text-transform: uppercase; color: #0f172a; }
+        .header h2 { font-size: 12pt; color: #475569; margin: 5px 0 0 0; }
+        .student-details { width: 100%; border: 1px solid #cbd5e1; border-collapse: collapse; margin-bottom: 25px; }
+        .student-details td { border: 1px solid #cbd5e1; padding: 8px 12px; font-size: 10pt; background: #f8fafc; }
+        .section-title { background: #0f172a; color: #ffffff; padding: 8px 12px; font-size: 13pt; font-weight: bold; margin-top: 30px; margin-bottom: 15px; border-radius: 4px; text-transform: uppercase; }
+        .field-label { font-weight: bold; font-size: 10pt; color: #0f172a; margin-top: 15px; margin-bottom: 4px; text-transform: uppercase; }
+        .write-box { border: 1px dashed #94a3b8; background: #faf5ff; min-height: 60px; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .paste-box { border: 2px dashed #38bdf8; background: #f0f9ff; min-height: 120px; text-align: center; color: #0369a1; font-size: 9.5pt; font-weight: bold; padding: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px; }
+        th { background: #f1f5f9; border: 1px solid #94a3b8; font-weight: bold; font-size: 9.5pt; padding: 8px 10px; text-align: left; }
+        td { border: 1px solid #cbd5e1; padding: 8px 10px; font-size: 9.5pt; vertical-align: top; }
+        .page-break { page-break-before: always; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>Client Travel Dossier</h1>
+        <h2>Year 10 Commerce — Assessment Task 3: Travel Consultant</h2>
+      </div>
+
+      <table class="student-details">
+        <tr>
+          <td style="width: 20%;"><strong>Student Name:</strong></td>
+          <td style="width: 30%;">${data.studentName}</td>
+          <td style="width: 20%;"><strong>Due Date:</strong></td>
+          <td style="width: 30%;">Monday 18th September Week 9</td>
+        </tr>
+        <tr>
+          <td><strong>Class Roll/Code:</strong></td>
+          <td>${data.classCode}</td>
+          <td><strong>Assessment Weight:</strong></td>
+          <td>25%</td>
+        </tr>
+      </table>
+
+      <div class="section-title">Part A: Destination Profile, Schedule &amp; Quotes</div>
+      
+      <div class="field-label">1. Selected Destination Country/City</div>
+      <div class="write-box">${data['dest-country'] || '[Not specified]'}</div>
+
+      <div class="field-label">2. Primary Classification of Tourism</div>
+      <div class="write-box">${data['tourism-type'] || '[Not specified]'}</div>
+
+      <div class="field-label">3. Destination Justification (3–4 sentences)</div>
+      <div class="write-box">${data['dest-reason'] || '[Not entered]'}</div>
+
+      <div class="field-label">4. 7–${duration} Day Itinerary Table</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 8%;">Day</th>
+            <th style="width: 22%;">Morning Plan</th>
+            <th style="width: 22%;">Afternoon Activity</th>
+            <th style="width: 22%;">Evening Plan</th>
+            <th style="width: 18%;">Stay Overnight</th>
+            <th style="width: 8%; text-align:center;">Cultural?</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itineraryRows}
+        </tbody>
+      </table>
+
+      <div class="page-break"></div>
+
+      <div class="field-label">5. Sourced Return Flight Quotes (Sydney departure)</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50%;">Flight Option 1 (Selected)</th>
+            <th style="width: 50%;">Flight Option 2 (Comparison)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Airline:</strong> ${data['flight1-airline'] || '—'}<br/>
+              <strong>Flight Number(s):</strong> ${data['flight1-number'] || '—'}<br/>
+              <strong>Baggage Rules:</strong> ${data['flight1-baggage'] || '—'}<br/>
+              <strong>Total Price (AUD):</strong> $${data['flight1-price'] || '0'}<br/>
+              <strong>Booking Web Link:</strong> ${data['flight1-link'] || '—'}
+            </td>
+            <td>
+              <strong>Airline:</strong> ${data['flight2-airline'] || '—'}<br/>
+              <strong>Flight Number(s):</strong> ${data['flight2-number'] || '—'}<br/>
+              <strong>Baggage Rules:</strong> ${data['flight2-baggage'] || '—'}<br/>
+              <strong>Total Price (AUD):</strong> $${data['flight2-price'] || '0'}<br/>
+              <strong>Booking Web Link:</strong> ${data['flight2-link'] || '—'}
+            </td>
+          </tr>
+          <tr>
+            <td class="paste-box">[PASTE SCREENSHOT OF FLIGHT 1 QUOTE HERE]</td>
+            <td class="paste-box">[PASTE SCREENSHOT OF FLIGHT 2 QUOTE HERE]</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-label">Flight Selection Justification</div>
+      <div class="write-box">${data['flight-selection-reason'] || '[Not entered]'}</div>
+
+      <div class="field-label">6. Sourced Accommodation Quotes</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50%;">Accommodation Option 1 (Selected)</th>
+            <th style="width: 50%;">Accommodation Option 2 (Comparison)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Property Name:</strong> ${data['acc1-name'] || '—'}<br/>
+              <strong>Location/Area:</strong> ${data['acc1-location'] || '—'}<br/>
+              <strong>Price per Night (AUD):</strong> $${data['acc1-rate'] || '0'}<br/>
+              <strong>Website Link:</strong> ${data['acc1-link'] || '—'}
+            </td>
+            <td>
+              <strong>Property Name:</strong> ${data['acc2-name'] || '—'}<br/>
+              <strong>Location/Area:</strong> ${data['acc2-location'] || '—'}<br/>
+              <strong>Price per Night (AUD):</strong> $${data['acc2-rate'] || '0'}<br/>
+              <strong>Website Link:</strong> ${data['acc2-link'] || '—'}
+            </td>
+          </tr>
+          <tr>
+            <td class="paste-box">[PASTE SCREENSHOT OF ACCOMMODATION 1 HERE]</td>
+            <td class="paste-box">[PASTE SCREENSHOT OF ACCOMMODATION 2 HERE]</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-label">Accommodation Selection Justification</div>
+      <div class="write-box">${data['acc-selection-reason'] || '[Not entered]'}</div>
+
+      <div class="page-break"></div>
+
+      <div class="section-title">Part C: Smartraveller, Local Rules &amp; Insurance</div>
+      
+      <div class="field-label">1. Official DFAT Safety Advice Level</div>
+      <div class="write-box">${data['smartraveller-level'] || '[Not specified]'}</div>
+
+      <div class="field-label">2. Specific Safety Warnings</div>
+      <div class="write-box">
+        1. ${data['safety-warning-1'] || '—'}<br/>
+        2. ${data['safety-warning-2'] || '—'}
+      </div>
+
+      <div class="field-label">3. Entry Rules &amp; Passport Validity</div>
+      <div class="write-box">
+        <strong>Passport Validity:</strong> ${data['passport-validity'] || '—'}<br/>
+        <strong>Visa Requirements:</strong> ${data['visa-requirement'] || '—'}
+      </div>
+
+      <div class="field-label">4. Local Laws &amp; Cultural Customs</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50%;">Local Laws</th>
+            <th style="width: 50%;">Cultural Customs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              1. ${data['local-law-1'] || '—'}<br/>
+              2. ${data['local-law-2'] || '—'}
+            </td>
+            <td>
+              1. ${data['cultural-custom-1'] || '—'}<br/>
+              2. ${data['cultural-custom-2'] || '—'}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-label">5. Travel Insurance Sourcing</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50%;">Insurance Option 1</th>
+            <th style="width: 50%;">Insurance Option 2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Provider:</strong> ${data['ins1-provider'] || '—'}<br/>
+              <strong>Medical Cover:</strong> ${data['ins1-medical'] || '—'}<br/>
+              <strong>Excess Fee:</strong> $${data['ins1-excess'] || '0'}<br/>
+              <strong>Premium Cost:</strong> $${data['ins1-premium'] || '0'}<br/>
+              <strong>Link:</strong> ${data['ins1-link'] || '—'}
+            </td>
+            <td>
+              <strong>Provider:</strong> ${data['ins2-provider'] || '—'}<br/>
+              <strong>Medical Cover:</strong> ${data['ins2-medical'] || '—'}<br/>
+              <strong>Excess Fee:</strong> $${data['ins2-excess'] || '0'}<br/>
+              <strong>Premium Cost:</strong> $${data['ins2-premium'] || '0'}<br/>
+              <strong>Link:</strong> ${data['ins2-link'] || '—'}
+            </td>
+          </tr>
+          <tr>
+            <td class="paste-box">[PASTE SCREENSHOT OF INSURANCE QUOTE 1 HERE]</td>
+            <td class="paste-box">[PASTE SCREENSHOT OF INSURANCE QUOTE 2 HERE]</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-label">Insurance Justification (Selected: ${data['ins-selected'] || '—'})</div>
+      <div class="write-box">${data['ins-justification'] || '[Not entered]'}</div>
+
+      <div class="page-break"></div>
+
+      <div class="section-title">Part D: Emergency Crisis Management</div>
+      
+      <div class="field-label">Selected Scenario</div>
+      <div class="write-box" style="font-weight:bold; color:#7f1d1d;">CHOICE: ${data['emergency-scenario'] ? data['emergency-scenario'].toUpperCase() : 'None selected'}</div>
+
+      <div class="field-label">Step 1: First 24 Hours (Immediate Actions)</div>
+      <div class="write-box" style="min-height: 100px;">${data['em-step1'] || '[Not entered]'}</div>
+
+      <div class="field-label">Step 2: The Australian Embassy (Consular Assistance)</div>
+      <div class="write-box" style="min-height: 100px;">${data['em-step2'] || '[Not entered]'}</div>
+
+      <div class="field-label">Step 3: Emergency Funds &amp; Claims</div>
+      <div class="write-box" style="min-height: 100px;">${data['em-step3'] || '[Not entered]'}</div>
+    </body>
+    </html>
+  `;
+
+  // Download trigger as MS Word file (.doc extension wrapping HTML styles)
+  const blob = new Blob(['\ufeff' + docHtml], { type: 'application/msword' });
+  const filename = `${studentName.replace(/\s+/g,'_')}_Travel_Dossier.doc`;
+  
+  if (navigator.msSaveBlob) {
+    navigator.msSaveBlob(blob, filename);
+  } else {
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+}
+
+
