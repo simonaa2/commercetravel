@@ -18,24 +18,24 @@ const CONFIG = {
   // Leave the array empty [] to use the fallback CLASS_CODE system instead.
   // -----------------------------------------------
   STUDENTS: [
-    { name: 'Joshua Duffey', password: 'joshua27' },
-    { name: 'Tobias Filipek', password: 'tobias25' },
-    { name: 'Jasper Ghodosi', password: 'jasper25' },
-    { name: 'Charlie Jurd-Smith', password: 'charlie28' },
-    { name: 'Anthony Lattouf', password: 'anthony25' },
-    { name: 'Jacob Lattouf', password: 'jacob25' },
-    { name: 'Oliver Martin', password: 'oliver29' },
-    { name: 'Max Mirabello', password: 'max26' },
-    { name: 'Dominic Mobberley-Barreto', password: 'dominic26' },
-    { name: 'Noah Ntzeremes', password: 'noah26' },
-    { name: 'Patrick O\'Connor', password: 'patrick26' },
-    { name: 'Wachirawit (Shine) Sajjathitiyanond', password: 'shine29' },
-    { name: 'Jacob Salem', password: 'jacob29' },
-    { name: 'Luca Toffolo', password: 'luca28' },
-    { name: 'James Tzirtzilakis', password: 'james28' },
-    { name: 'William Tzirtzilakis', password: 'william28' },
-    { name: 'Kaiden Walker', password: 'kaiden27' },
-    { name: 'Jesper Whippy', password: 'jesper27' }
+    { name: 'Joshua Duffey', password: 'joshua5192' },
+    { name: 'Tobias Filipek', password: 'tobias8374' },
+    { name: 'Jasper Ghodosi', password: 'jasper6201' },
+    { name: 'Charlie Jurd-Smith', password: 'charlie4093' },
+    { name: 'Anthony Lattouf', password: 'anthony7182' },
+    { name: 'Jacob Lattouf', password: 'jacob3510' },
+    { name: 'Oliver Martin', password: 'oliver9024' },
+    { name: 'Max Mirabello', password: 'max4831' },
+    { name: 'Dominic Mobberley-Barreto', password: 'dominic5729' },
+    { name: 'Noah Ntzeremes', password: 'noah8214' },
+    { name: 'Patrick O\'Connor', password: 'patrick6392' },
+    { name: 'Wachirawit (Shine) Sajjathitiyanond', password: 'shine7029' },
+    { name: 'Jacob Salem', password: 'jacob5183' },
+    { name: 'Luca Toffolo', password: 'luca4920' },
+    { name: 'James Tzirtzilakis', password: 'james6304' },
+    { name: 'William Tzirtzilakis', password: 'william1759' },
+    { name: 'Kaiden Walker', password: 'kaiden3810' },
+    { name: 'Jesper Whippy', password: 'jesper9240' }
   ],
 
   // Fallback class code (only used if STUDENTS list is empty):
