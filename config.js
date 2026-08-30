@@ -35,7 +35,8 @@ const CONFIG = {
     { name: 'James Tzirtzilakis', password: 'james6304' },
     { name: 'William Tzirtzilakis', password: 'william1759' },
     { name: 'Kaiden Walker', password: 'kaiden3810' },
-    { name: 'Jesper Whippy', password: 'jesper9240' }
+    { name: 'Jesper Whippy', password: 'jesper9240' },
+    { name: 'Jane Doe', password: 'jane202' }
   ],
 
   // Fallback class code (only used if STUDENTS list is empty):
