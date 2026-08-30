@@ -15,6 +15,8 @@
 
 var TEACHER_PASSWORD = 'Rhino123*';
 var SHEET_NAME = 'Submissions';
+// Paste your Google Sheet ID here (the long string of letters and numbers in your spreadsheet URL):
+var SPREADSHEET_ID = '1mRTAZTH7b5n-oBAcyqwX-ICQ8nOgV_cp_wu9r2uHBeo';
 
 function doPost(e) {
   try {
@@ -148,6 +150,14 @@ function doGet(e) {
 }
 
 function getOrCreateSpreadsheet() {
+  if (SPREADSHEET_ID && SPREADSHEET_ID !== 'YOUR_SPREADSHEET_ID_HERE') {
+    try {
+      return SpreadsheetApp.openById(SPREADSHEET_ID);
+    } catch(e) {
+      throw new Error("Could not open spreadsheet by ID. Please check that the SPREADSHEET_ID is correct and the script has permission to access it.");
+    }
+  }
+
   var ss = null;
   try {
     ss = SpreadsheetApp.getActiveSpreadsheet();
