@@ -13,7 +13,7 @@
 // 7. Paste that URL into config.js under SCRIPT_URL.
 // ===================================================
 
-var TEACHER_PASSWORD = 'travel10';
+var TEACHER_PASSWORD = 'Rhino123*';
 var SHEET_NAME = 'Submissions';
 
 function doPost(e) {

@@ -42,7 +42,7 @@ const CONFIG = {
   CLASS_CODE: 'COMM10_2026',
 
   // Password for the teacher dashboard
-  TEACHER_PASSWORD: 'travel10',
+  TEACHER_PASSWORD: 'Rhino123*',
 
   // Outcomes assessed for reference
   OUTCOMES: [
