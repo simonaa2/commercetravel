@@ -148,16 +148,21 @@ function doGet(e) {
 }
 
 function getOrCreateSpreadsheet() {
+  var ss = null;
   try {
-    return SpreadsheetApp.getActiveSpreadsheet();
-  } catch(e) {
-    // If running stand-alone, create or find by name (fallback)
-    var sheets = DriveApp.getFilesByName("Year 10 Commerce Travel Submissions");
-    if (sheets.hasNext()) {
-      return SpreadsheetApp.open(sheets.next());
-    }
-    return SpreadsheetApp.create("Year 10 Commerce Travel Submissions");
+    ss = SpreadsheetApp.getActiveSpreadsheet();
+  } catch(e) {}
+  
+  if (ss) {
+    return ss;
   }
+  
+  // If running stand-alone (getActiveSpreadsheet returns null), create or find by name
+  var sheets = DriveApp.getFilesByName("Year 10 Commerce Travel Submissions");
+  if (sheets.hasNext()) {
+    return SpreadsheetApp.open(sheets.next());
+  }
+  return SpreadsheetApp.create("Year 10 Commerce Travel Submissions");
 }
 
 function response(obj) {
