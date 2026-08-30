@@ -3,19 +3,31 @@
 // ===================================================
 
 const CONFIG = {
-  // The class code students must enter to log in
-  CLASS_CODE: 'COMM10_2026',
+  // Google Apps Script Web App URL (from your setup):
+  SCRIPT_URL: 'YOUR_APPS_SCRIPT_URL_HERE',
 
   // Due Date (Friday 18th September 2026 by 3:30pm)
   // Used for the countdown timer
   DUE_DATE: '2026-09-18T15:30:00',
 
+  // -----------------------------------------------
+  // STUDENT ROSTER
+  // Add each student as: { name: 'Full Name', password: 'password' }
+  // Name must match exactly what they type on the login page.
+  // Passwords can be anything — e.g. first name + last 2 digits of DOB.
+  // Leave the array empty [] to use the fallback CLASS_CODE system instead.
+  // -----------------------------------------------
+  STUDENTS: [
+    { name: 'John Smith',       password: 'john101' },
+    { name: 'Jane Doe',         password: 'jane202' },
+    { name: 'Alex Johnson',     password: 'alex303' }
+  ],
+
+  // Fallback class code (only used if STUDENTS list is empty):
+  CLASS_CODE: 'COMM10_2026',
+
   // Password for the teacher dashboard
   TEACHER_PASSWORD: 'travel10',
-
-  // Google Apps Script Web App URL for submissions
-  // Once deployed, paste the URL ending in /exec here
-  SCRIPT_URL: 'YOUR_APPS_SCRIPT_URL_HERE',
 
   // Outcomes assessed for reference
   OUTCOMES: [

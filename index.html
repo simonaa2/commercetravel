@@ -104,6 +104,7 @@
       font-size: 1rem;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
+    .login-input::placeholder { color: var(--text-dim); }
     .login-input:focus {
       outline: none;
       border-color: var(--teal);
@@ -121,12 +122,13 @@
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 4px 20px rgba(20, 184, 166, 0.2);
-      transition: opacity 0.2s, transform 0.15s;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
       margin-top: 0.5rem;
     }
     .login-btn:hover {
       opacity: 0.92;
       transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(20, 184, 166, 0.3);
     }
     .login-btn:active {
       transform: translateY(0);
@@ -145,6 +147,24 @@
     }
     .login-error.show {
       display: flex;
+      animation: fadeInUp 0.2s ease;
+    }
+    .login-countdown {
+      text-align: center;
+      margin-top: 1.8rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .lc-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); }
+    .lc-time {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold), var(--red));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0.2rem 0;
     }
     .login-footer {
       text-align: center;
@@ -171,34 +191,113 @@
     <div class="login-card">
       <div class="login-badge">Assessment Task 3</div>
       <h1 class="login-title">Travel <span class="accent">Consultant</span></h1>
-      <p class="login-subtitle">Year 10 Commerce Dossier &amp; Budget Workbook</p>
+      <p class="login-subtitle">Year 10 Commerce Dossier &amp; Budget Workbook<br>Enter your details to begin.</p>
 
-      <form id="login-form" onsubmit="handleLogin(event)">
-        <div class="login-field">
-          <label for="student-name">Full Name</label>
-          <input type="text" id="student-name" class="login-input" required placeholder="e.g. John Smith" autocomplete="name"/>
-        </div>
+      <div class="login-field">
+        <label for="login-name">Your Full Name</label>
+        <input type="text" id="login-name" class="login-input" placeholder="e.g. John Smith" autocomplete="name" autocapitalize="words"/>
+      </div>
 
-        <div class="login-field">
-          <label for="class-code">Class Code</label>
-          <input type="text" id="class-code" class="login-input" required placeholder="e.g. COMM10_2026" autocomplete="off"/>
-        </div>
+      <div class="login-field">
+        <label for="login-password">Password <span style="color:var(--text-dim);font-weight:400;text-transform:none">(given by your teacher)</span></label>
+        <input type="password" id="login-password" class="login-input" placeholder="Enter your password"/>
+      </div>
 
-        <button type="submit" class="login-btn">Start Workbook</button>
+      <button class="login-btn" id="login-btn" onclick="attemptLogin()">
+        Start Workbook →
+      </button>
 
-        <div class="login-error" id="login-error">
-          <span>⚠️</span> <span id="error-message">Incorrect Class Code. Please check and try again.</span>
-        </div>
-      </form>
+      <div class="login-error" id="login-error">
+        <span>⚠️</span> <span id="error-message">Name or password not recognised.</span>
+      </div>
 
-      <div class="login-footer">
-        <a href="teacher.html">Teacher dashboard ➔</a>
+      <div class="login-countdown">
+        <div class="lc-label">Due in</div>
+        <div class="lc-time" id="countdown">--</div>
+        <div class="lc-label" id="due-date-label">18 September 2026</div>
       </div>
     </div>
   </div>
 
+  <div class="login-footer">
+    <a href="teacher.html">Teacher dashboard ➔</a>
+  </div>
+
   <script src="config.js"></script>
   <script>
+    // Set subtitle dynamically
+    document.getElementById('due-date-label').textContent = new Date(CONFIG.DUE_DATE).toLocaleString('en-AU', {
+      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    // Countdown
+    function updateCountdown() {
+      const due = new Date(CONFIG.DUE_DATE);
+      const diff = due - new Date();
+      if (diff <= 0) { document.getElementById('countdown').textContent = 'Past due'; return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      document.getElementById('countdown').textContent = `${d}d ${h}h ${m}m`;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 30000);
+
+    // Login logic matching Business studies hybrid architecture
+    function attemptLogin() {
+      const name     = document.getElementById('login-name').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+
+      if (!name)     { showError('Please enter your full name.'); return; }
+      if (!password) { showError('Please enter your password.'); return; }
+
+      const useRoster = CONFIG.STUDENTS && CONFIG.STUDENTS.length > 0;
+
+      if (useRoster) {
+        // Flexible roster match: allows full name or prefix matching
+        const inputName = name.toLowerCase();
+        const match = CONFIG.STUDENTS.find(s => {
+          const fullName  = s.name.toLowerCase();
+          const firstName = s.name.split(' ')[0].toLowerCase();
+          return (fullName === inputName || firstName === inputName || fullName.startsWith(inputName)) && s.password.trim() === password;
+        });
+
+        if (!match) {
+          showError('Name or password not recognised. Check spelling and password.');
+          return;
+        }
+
+        // Use exact name from roster
+        sessionStorage.setItem('studentName', match.name);
+        sessionStorage.setItem('classCode', CONFIG.CLASS_CODE || 'COMM10_2026');
+      } else {
+        // Fallback: Class code mode
+        const code = password.toUpperCase();
+        if (code !== CONFIG.CLASS_CODE) {
+          showError('Incorrect class code. Check with your teacher and try again.');
+          return;
+        }
+
+        sessionStorage.setItem('studentName', name);
+        sessionStorage.setItem('classCode', code);
+      }
+
+      window.location.href = 'scaffold.html';
+    }
+
+    function showError(msg) {
+      const errorDiv = document.getElementById('login-error');
+      const errorMsg = document.getElementById('error-message');
+      errorMsg.textContent = msg;
+      errorDiv.classList.add('show');
+      setTimeout(() => errorDiv.classList.remove('show'), 5000);
+    }
+
+    // Allow Enter key to trigger login
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') attemptLogin();
+    });
+
     // Guard: If already logged in, skip login unless logout requested
     const params = new URLSearchParams(window.location.search);
     if (params.get('logout')) {
@@ -210,38 +309,6 @@
       if (existingName && existingCode === CONFIG.CLASS_CODE) {
         window.location.href = 'scaffold.html';
       }
-    }
-
-    function handleLogin(event) {
-      event.preventDefault();
-      const name = document.getElementById('student-name').value.trim();
-      const code = document.getElementById('class-code').value.trim();
-      const errorDiv = document.getElementById('login-error');
-      const errorMsg = document.getElementById('error-message');
-
-      if (!name) {
-        showError("Please enter your full name.");
-        return;
-      }
-
-      if (code !== CONFIG.CLASS_CODE) {
-        showError("Incorrect Class Code. Please check with your teacher.");
-        return;
-      }
-
-      // Store in session storage
-      sessionStorage.setItem('studentName', name);
-      sessionStorage.setItem('classCode', code);
-
-      // Redirect to main scaffold
-      window.location.href = 'scaffold.html';
-    }
-
-    function showError(msg) {
-      const errorDiv = document.getElementById('login-error');
-      const errorMsg = document.getElementById('error-message');
-      errorMsg.textContent = msg;
-      errorDiv.classList.add('show');
     }
   </script>
 </body>
