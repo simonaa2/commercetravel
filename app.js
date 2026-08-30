@@ -726,27 +726,6 @@ if (prevSubmit) {
 
 // ===== 9. SUBMISSION SYSTEM =====
 function openSubmitModal() {
-  // Basic Validations
-  const dest = document.getElementById('dest-country').value.trim();
-  const touristType = document.getElementById('tourism-type').value;
-  const externalLink = document.getElementById('external-spreadsheet-url').value.trim();
-  const emergencyScenario = document.getElementById('emergency-scenario').value;
-  
-  if (!dest || !touristType) {
-    alert("Please complete Part A: Destination Profile & Tourism Classification first.");
-    return;
-  }
-  
-  if (!externalLink) {
-    alert("Please enter your external Google Sheets/Excel link in Part B.");
-    return;
-  }
-  
-  if (!emergencyScenario) {
-    alert("Please select an emergency crisis scenario in Part D.");
-    return;
-  }
-  
   document.getElementById('submit-overlay').style.display = 'flex';
   document.getElementById('submit-spinner').style.display = 'flex';
   document.getElementById('submit-success').style.display = 'none';
