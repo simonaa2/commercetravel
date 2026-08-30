@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Year 10 Commerce — Travel Assessment Workbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- SUBMISSION OVERLAY -->
+  <div class="submit-overlay" id="submit-overlay">
+    <div class="submit-modal">
+      <div class="submit-spinner" id="submit-spinner">
+        <div class="spinner"></div>
+        <p>Submitting your completed travel dossier...</p>
+      </div>
+      <div class="submit-success" id="submit-success" style="display:none">
+        <div class="success-icon">✅</div>
+        <h2>Dossier Submitted Successfully!</h2>
+        <p id="submit-success-name"></p>
+        <p class="submit-ts" id="submit-ts"></p>
+        <button class="success-btn" onclick="document.getElementById('submit-overlay').style.display='none'">Keep editing</button>
+      </div>
+      <div class="submit-fail" id="submit-fail" style="display:none">
+        <div class="fail-icon">⚠️</div>
+        <h2>Submission Failed</h2>
+        <p id="submit-fail-msg"></p>
+        <button class="fail-btn" onclick="document.getElementById('submit-overlay').style.display='none'">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-top-row">
+        <div class="header-badge">Assessment Task 3 · 25%</div>
+        <div class="student-chip" id="student-chip">
+          <span class="student-avatar" id="student-avatar">?</span>
+          <span id="student-name-display">Loading...</span>
+          <a href="index.html?logout=1" class="logout-link" title="Logout/Switch Student">✕</a>
+        </div>
+      </div>
+      <h1 class="header-title">Travel <span class="accent">Consultant Dossier</span></h1>
+      <p class="header-subtitle">Designing an authentic travel package for an 18-25 client under a strict $10,000 AUD limit.</p>
+      
+      <div class="header-meta">
+        <div class="meta-chip"><span class="meta-icon">📅</span><span id="due-date-meta">Due: Monday 18th Sept 3:30pm</span></div>
+        <div class="meta-chip"><span class="meta-icon">✈️</span><span>Duration: 7-10 Days</span></div>
+        <div class="meta-chip"><span class="meta-icon">💰</span><span>Budget Cap: $10,000 AUD</span></div>
+      </div>
+
+      <div class="countdown-wrapper">
+        <div class="countdown-label">⏰ Submission Countdown</div>
+        <div id="countdown" class="countdown-display">--d --h --m --s</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- TABS NAVIGATION -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="overview">📋 Overview &amp; Milestones</button>
+      <button class="tab-btn" data-tab="parta">✈️ Part A: Destination &amp; Quotes</button>
+      <button class="tab-btn" data-tab="partb">💰 Part B: Budget Spreadsheet</button>
+      <button class="tab-btn" data-tab="partc">🔍 Part C: Smartraveller &amp; Laws</button>
+      <button class="tab-btn" data-tab="partd">🚨 Part D: Emergency Crisis</button>
+    </div>
+
+    <!-- =================== TAB 1: OVERVIEW & MILESTONES =================== -->
+    <div class="tab-content active" id="tab-content-overview">
+      <div class="goals-banner">
+        <div class="goals-title">💡 Assessment Context</div>
+        <p class="goals-list" style="margin-left: 0;">Over this term, you have learnt how to plan for travel and how to solve problems encountered when travelling. As an independent Travel Consultant, you will design an authentic travel package for a client in the 18–25 age demographic with a strict total budget limit of $10,000 AUD.</p>
+      </div>
+
+      <div class="scaffold-card">
+        <h3 class="card-title">Outcomes Assessed</h3>
+        <p class="card-subtitle">These are the syllabus outcomes evaluated in this project:</p>
+        <ul style="margin-left: 1.5rem; margin-top: 1rem; font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.6rem;">
+          <li><strong>COM5-1:</strong> Applies consumer, financial, economic, business, legal, political and employment concepts and terminology in a variety of contexts.</li>
+          <li><strong>COM5-4:</strong> Analyses key factors affecting decisions.</li>
+          <li><strong>COM5-5:</strong> Evaluates options for solving problems and issues.</li>
+          <li><strong>COM5-6:</strong> Develops and implements plans designed to achieve goals.</li>
+          <li><strong>COM5-7:</strong> Researches and assesses information using a variety of sources.</li>
+          <li><strong>COM5-8:</strong> Explains information using a variety of forms.</li>
+        </ul>
+      </div>
+
+      <div class="scaffold-card">
+        <h3 class="card-title">Key Milestones &amp; In-Class Support</h3>
+        <p class="card-subtitle">Use your lesson periods in Weeks 7, 8, and 9 to complete these steps:</p>
+        
+        <div class="checklist" style="margin-top: 1.2rem;">
+          <label class="check-item">
+            <input type="checkbox" id="milestone-w7"/>
+            <span class="check-text">
+              <strong class="check-title">Week 7 Milestone: Destination Selection &amp; Travel Logistics</strong>
+              <span class="check-desc">Destination approved by teacher; initial flight and accommodation options researched and quotes sourced.</span>
+            </span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="milestone-w8"/>
+            <span class="check-text">
+              <strong class="check-title">Week 8 Milestone: Itemised Budget &amp; Safety Profile</strong>
+              <span class="check-desc">Draft itemised budget spreadsheet with currency conversions completed; Smartraveller advisory levels checked.</span>
+            </span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="milestone-w9"/>
+            <span class="check-text">
+              <strong class="check-title">Week 9 Milestone: Final Submission &amp; Validation</strong>
+              <span class="check-desc">Digital submission of Dossier and Budget Spreadsheet by Friday 3:30pm. Complete the 15-minute handwritten in-class validation check.</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== TAB 2: PART A - DESTINATION & QUOTES =================== -->
+    <div class="tab-content" id="tab-content-parta">
+      <!-- Destination Profile -->
+      <div class="scaffold-card">
+        <div class="card-header-row">
+          <div>
+            <h3 class="card-title">Destination Profile &amp; Tourism Classification</h3>
+            <p class="card-subtitle">Select where your client is travelling and the primary type of tourism.</p>
+          </div>
+          <span class="marks-badge">8 Marks (A)</span>
+        </div>
+
+        <div class="grid-2col">
+          <div class="form-group">
+            <label for="dest-country">Destination City &amp; Country<span class="required">*</span></label>
+            <input type="text" id="dest-country" class="field-input" placeholder="e.g. Tokyo, Japan"/>
+          </div>
+          <div class="form-group">
+            <label for="tourism-type">Primary Type of Tourism<span class="required">*</span></label>
+            <select id="tourism-type" class="field-select">
+              <option value="">-- Select Type --</option>
+              <option value="Adventure">Adventure Tourism</option>
+              <option value="Cultural">Cultural Tourism</option>
+              <option value="Ecotourism">Ecotourism</option>
+              <option value="Recreational">Recreational Tourism</option>
+              <option value="Other">Other / Combination</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="dest-reason">Justification: Why this destination suits an 18–25 year old?<span class="required">*</span></label>
+          <p class="card-subtitle" style="margin-bottom: 0.5rem;">Write 3–4 sentences explaining what makes this holiday suitable for this demographic (e.g. adventure, affordability, nightlife, culture).</p>
+          <textarea id="dest-reason" class="field-textarea" rows="4" placeholder="Write your justification here..."></textarea>
+          <div class="word-counter-wrapper">
+            Words: <span class="count" id="dest-reason-words">0</span> / Rec: 60+
+          </div>
+        </div>
+      </div>
+
+      <!-- 7-10 Day Itinerary -->
+      <div class="scaffold-card">
+        <h3 class="card-title">7–10 Day Itinerary Table</h3>
+        <p class="card-subtitle">Plan a detailed daily schedule. You must include at least one cultural landmark, historical site, or guided cultural tour, marked by checking the "Cultural?" box.</p>
+        
+        <div class="itinerary-controls" style="margin-top: 1.2rem;">
+          <label for="trip-duration">Select Trip Length:</label>
+          <select id="trip-duration" class="field-select" style="max-width: 150px;">
+            <option value="7">7 Days</option>
+            <option value="8">8 Days</option>
+            <option value="9">9 Days</option>
+            <option value="10">10 Days</option>
+          </select>
+          <span style="font-size: 0.8rem; color: var(--teal); font-weight: 600;" id="cultural-check-indicator">⚠️ Please mark at least one cultural landmark/site below.</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="scaffold-table" id="itinerary-table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">Day</th>
+                <th>Morning Plan</th>
+                <th>Afternoon Activity</th>
+                <th>Evening Plan</th>
+                <th>Stay Overnight</th>
+                <th style="width: 75px; text-align: center;">Cultural?</th>
+              </tr>
+            </thead>
+            <tbody id="itinerary-tbody">
+              <!-- JS will dynamically populate rows based on trip-duration -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sourced Flight Quotes -->
+      <div class="scaffold-card">
+        <h3 class="card-title">Comparative Return Flight Quotes (From Sydney)</h3>
+        <p class="card-subtitle">Source two different flight options and insert their details below.</p>
+        
+        <div class="grid-2col" style="margin-top: 1.2rem;">
+          <!-- Flight Quote 1 -->
+          <div class="quote-box">
+            <div class="quote-box-title">✈️ Flight Option 1 (Selected by default)</div>
+            <div class="form-group">
+              <label for="flight1-airline">Airline Name<span class="required">*</span></label>
+              <input type="text" id="flight1-airline" class="field-input" placeholder="e.g. Qantas"/>
+            </div>
+            <div class="form-group">
+              <label for="flight1-number">Flight Number(s)<span class="required">*</span></label>
+              <input type="text" id="flight1-number" class="field-input" placeholder="e.g. QF25 / QF26"/>
+            </div>
+            <div class="form-group">
+              <label for="flight1-baggage">Baggage Rules<span class="required">*</span></label>
+              <input type="text" id="flight1-baggage" class="field-input" placeholder="e.g. 30kg checked baggage included"/>
+            </div>
+            <div class="form-group">
+              <label for="flight1-price">Total Price (AUD)<span class="required">*</span></label>
+              <input type="number" id="flight1-price" class="field-input" placeholder="e.g. 1450" min="0"/>
+            </div>
+            <div class="form-group">
+              <label for="flight1-link">Link / Screenshot Reference<span class="required">*</span></label>
+              <input type="url" id="flight1-link" class="field-input" placeholder="e.g. https://skyscanner.com/qantas-quote"/>
+            </div>
+          </div>
+
+          <!-- Flight Quote 2 -->
+          <div class="quote-box">
+            <div class="quote-box-title">✈️ Flight Option 2</div>
+            <div class="form-group">
+              <label for="flight2-airline">Airline Name</label>
+              <input type="text" id="flight2-airline" class="field-input" placeholder="e.g. Singapore Airlines"/>
+            </div>
+            <div class="form-group">
+              <label for="flight2-number">Flight Number(s)</label>
+              <input type="text" id="flight2-number" class="field-input" placeholder="e.g. SQ211 / SQ212"/>
+            </div>
+            <div class="form-group">
+              <label for="flight2-baggage">Baggage Rules</label>
+              <input type="text" id="flight2-baggage" class="field-input" placeholder="e.g. 25kg checked baggage included"/>
+            </div>
+            <div class="form-group">
+              <label for="flight2-price">Total Price (AUD)</label>
+              <input type="number" id="flight2-price" class="field-input" placeholder="e.g. 1290" min="0"/>
+            </div>
+            <div class="form-group">
+              <label for="flight2-link">Link / Screenshot Reference</label>
+              <input type="url" id="flight2-link" class="field-input" placeholder="e.g. https://skyscanner.com/singapore-quote"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="flight-selection-reason">Which flight option did you select and why?</label>
+          <textarea id="flight-selection-reason" class="field-textarea" rows="2" placeholder="Explain your preference (e.g. cheaper price, direct flight, better baggage limits)..."></textarea>
+        </div>
+      </div>
+
+      <!-- Sourced Accommodation Quotes -->
+      <div class="scaffold-card">
+        <h3 class="card-title">Comparative Accommodation Quotes</h3>
+        <p class="card-subtitle">Compare two different accommodation properties in your main destination city (e.g., Youth Hostel vs. Hotel or Airbnb).</p>
+        
+        <div class="grid-2col" style="margin-top: 1.2rem;">
+          <!-- Acc Option 1 -->
+          <div class="quote-box">
+            <div class="quote-box-title">🏨 Accommodation Option 1</div>
+            <div class="form-group">
+              <label for="acc1-name">Property Name<span class="required">*</span></label>
+              <input type="text" id="acc1-name" class="field-input" placeholder="e.g. Khaosan Youth Hostel Tokyo"/>
+            </div>
+            <div class="form-group">
+              <label for="acc1-location">Location / Area<span class="required">*</span></label>
+              <input type="text" id="acc1-location" class="field-input" placeholder="e.g. Asakusa, Tokyo"/>
+            </div>
+            <div class="form-group">
+              <label for="acc1-rate">Price per Night (AUD)<span class="required">*</span></label>
+              <input type="number" id="acc1-rate" class="field-input" placeholder="e.g. 45" min="0"/>
+            </div>
+            <div class="form-group">
+              <label for="acc1-link">Link / Screenshot Reference<span class="required">*</span></label>
+              <input type="url" id="acc1-link" class="field-input" placeholder="e.g. https://booking.com/hostel-tokyo"/>
+            </div>
+          </div>
+
+          <!-- Acc Option 2 -->
+          <div class="quote-box">
+            <div class="quote-box-title">🏨 Accommodation Option 2</div>
+            <div class="form-group">
+              <label for="acc2-name">Property Name</label>
+              <input type="text" id="acc2-name" class="field-input" placeholder="e.g. Hotel Sunroute Plaza Shinjuku"/>
+            </div>
+            <div class="form-group">
+              <label for="acc2-location">Location / Area</label>
+              <input type="text" id="acc2-location" class="field-input" placeholder="e.g. Shinjuku, Tokyo"/>
+            </div>
+            <div class="form-group">
+              <label for="acc2-rate">Price per Night (AUD)</label>
+              <input type="number" id="acc2-rate" class="field-input" placeholder="e.g. 160" min="0"/>
+            </div>
+            <div class="form-group">
+              <label for="acc2-link">Link / Screenshot Reference</label>
+              <input type="url" id="acc2-link" class="field-input" placeholder="e.g. https://booking.com/hotel-tokyo-shinjuku"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="acc-selection-reason">Which accommodation option did you select and why?</label>
+          <textarea id="acc-selection-reason" class="field-textarea" rows="2" placeholder="Explain your preference (e.g. closer to city centre, kitchen facilities, cheaper rates for youths)..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== TAB 3: PART B - BUDGET SPREADSHEET =================== -->
+    <div class="tab-content" id="tab-content-partb">
+      <div class="scaffold-card">
+        <div class="card-header-row">
+          <div>
+            <h3 class="card-title">Financial Budget Draft Calculator</h3>
+            <p class="card-subtitle">Set up currency conversion rules and draft your budget items below. Check that your Grand Total remains under the strict $10,000 AUD limit, and includes a 5–10% contingency fund ($500 - $1,000 AUD).</p>
+          </div>
+          <span class="marks-badge">8 Marks (B)</span>
+        </div>
+
+        <!-- Currency Conversion Rules -->
+        <div class="budget-setup-grid">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="budget-currency-code">Destination Currency Code</label>
+            <input type="text" id="budget-currency-code" class="field-input" placeholder="e.g. JPY, USD, EUR" value="USD"/>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="budget-exchange-rate">Exchange Rate (1 AUD = ?)</label>
+            <input type="number" id="budget-exchange-rate" class="field-input" placeholder="e.g. 0.65" value="0.65" step="any" min="0.0001"/>
+          </div>
+          <div style="display:flex; align-items:flex-end; font-size:0.75rem; color:var(--text-muted); line-height:1.4;">
+            <div>Formula: <code style="color:var(--teal); font-family:monospace; background:rgba(0,0,0,0.2); padding:0.15rem 0.3rem; border-radius:4px;">AUD = Foreign Price / Rate</code></div>
+          </div>
+        </div>
+
+        <!-- Budget Items Table -->
+        <div class="table-responsive">
+          <table class="scaffold-table budget-builder-table">
+            <thead>
+              <tr>
+                <th style="width:160px;">Category</th>
+                <th>Description</th>
+                <th style="width:120px;">Cost (Foreign)</th>
+                <th style="width:80px; text-align:center;">Currency</th>
+                <th style="width:120px;">Cost (AUD)</th>
+                <th style="width:50px; text-align:center;">Remove</th>
+              </tr>
+            </thead>
+            <tbody id="budget-tbody">
+              <!-- Dynamic Rows will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Add Custom Button -->
+        <div class="budget-actions">
+          <button class="btn-add-row" onclick="addBudgetRow()">➕ Add Custom Budget Row</button>
+        </div>
+
+        <!-- Budget Summaries -->
+        <div class="budget-summary-box">
+          <div class="summary-title">Financial Summary</div>
+          
+          <div class="summary-row">
+            <span>Base Travel Expenses (excl. Contingency):</span>
+            <span id="budget-base-aud">$0.00 AUD</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Contingency Fund (5% to 10% target):</span>
+            <div style="text-align: right;">
+              <span id="budget-contingency-aud">$0.00 AUD</span>
+              <div id="budget-contingency-percent" style="font-size:0.72rem; color:var(--text-muted);">0.0% of Base</div>
+            </div>
+          </div>
+
+          <div class="summary-row bold">
+            <span>Grand Total (Total Budget):</span>
+            <span id="budget-grand-total-aud">$0.00 AUD</span>
+          </div>
+
+          <!-- Interactive Checks / Badges -->
+          <div id="budget-status-cap" class="budget-badge">
+            Checking budget caps...
+          </div>
+
+          <div id="budget-status-contingency" class="budget-badge" style="margin-top:0.6rem;">
+            Checking contingency rules...
+          </div>
+        </div>
+      </div>
+
+      <!-- External Spreadsheet Submission Link -->
+      <div class="scaffold-card">
+        <h3 class="card-title">Google Sheets / Excel Link Submission</h3>
+        <p class="card-subtitle">Paste the shareable link to your itemised spreadsheet. Make sure sharing settings are set to "Anyone with the link can view".</p>
+        <div class="form-group" style="margin-top: 1rem;">
+          <label for="external-spreadsheet-url">Google Sheets / Excel URL<span class="required">*</span></label>
+          <input type="url" id="external-spreadsheet-url" class="field-input" placeholder="https://docs.google.com/spreadsheets/d/..."/>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== TAB 4: PART C - SMARTRAVELLER & LAWS =================== -->
+    <div class="tab-content" id="tab-content-partc">
+      <!-- Smartraveller Advisory & Entry Rules -->
+      <div class="scaffold-card">
+        <div class="card-header-row">
+          <div>
+            <h3 class="card-title">Smartraveller Advisory &amp; Entry Rules</h3>
+            <p class="card-subtitle">Conduct due diligence on your destination using <a href="https://www.smartraveller.gov.au" target="_blank" style="color:var(--teal);">smartraveller.gov.au</a>.</p>
+          </div>
+          <span class="marks-badge">8 Marks (C)</span>
+        </div>
+
+        <div class="grid-2col">
+          <div class="form-group">
+            <label for="smartraveller-level">DFAT Safety Advice Level<span class="required">*</span></label>
+            <select id="smartraveller-level" class="field-select">
+              <option value="">-- Select Advice Level --</option>
+              <option value="Level 1: Exercise normal safety precautions">Level 1: Exercise normal safety precautions</option>
+              <option value="Level 2: Exercise a high degree of caution">Level 2: Exercise a high degree of caution</option>
+              <option value="Level 3: Reconsider your need to travel">Level 3: Reconsider your need to travel</option>
+              <option value="Level 4: Do not travel">Level 4: Do not travel</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="passport-validity">Passport Validity Requirement<span class="required">*</span></label>
+            <input type="text" id="passport-validity" class="field-input" placeholder="e.g. At least 6 months validity remaining from entry date"/>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <div class="form-group">
+            <label for="safety-warning-1">Safety Warning 1<span class="required">*</span></label>
+            <input type="text" id="safety-warning-1" class="field-input" placeholder="e.g. Scams targeting tourists in nightlife districts"/>
+          </div>
+          <div class="form-group">
+            <label for="safety-warning-2">Safety Warning 2<span class="required">*</span></label>
+            <input type="text" id="safety-warning-2" class="field-input" placeholder="e.g. High risk of natural disasters like earthquakes/typhoons"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="visa-requirement">Visa Requirements for Australian Citizens<span class="required">*</span></label>
+          <textarea id="visa-requirement" class="field-textarea" rows="2" placeholder="Do you need a tourist visa? Can you apply online, on arrival, or do you need to go to an embassy?"></textarea>
+        </div>
+      </div>
+
+      <!-- Local Laws & Cultural Customs -->
+      <div class="scaffold-card">
+        <h3 class="card-title">Local Laws &amp; Cultural Customs</h3>
+        <p class="card-subtitle">Research local customs and legal differences to ensure your client avoids fines, arrest, or offending locals.</p>
+        
+        <div class="grid-2col" style="margin-top:1.2rem;">
+          <!-- Laws -->
+          <div class="quote-box">
+            <div class="quote-box-title" style="color:var(--gold);">⚖️ Two Local Laws Different from Australia</div>
+            <div class="form-group">
+              <label for="local-law-1">Local Law 1<span class="required">*</span></label>
+              <input type="text" id="local-law-1" class="field-input" placeholder="e.g. Strict ban on vaping and importing e-cigarettes"/>
+            </div>
+            <div class="form-group">
+              <label for="local-law-2">Local Law 2<span class="required">*</span></label>
+              <input type="text" id="local-law-2" class="field-input" placeholder="e.g. Fines for jaywalking or eating on public streets"/>
+            </div>
+          </div>
+
+          <!-- Customs -->
+          <div class="quote-box">
+            <div class="quote-box-title" style="color:var(--gold);">🤝 Two Cultural Customs or Dress Codes</div>
+            <div class="form-group">
+              <label for="cultural-custom-1">Cultural Custom / Dress Code 1<span class="required">*</span></label>
+              <input type="text" id="cultural-custom-1" class="field-input" placeholder="e.g. Bowing slightly to greet others and using two hands to pay"/>
+            </div>
+            <div class="form-group">
+              <label for="cultural-custom-2">Cultural Custom / Dress Code 2<span class="required">*</span></label>
+              <input type="text" id="cultural-custom-2" class="field-input" placeholder="e.g. Cover shoulders and knees when visiting temples/shrines"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Travel Insurance Quotes -->
+      <div class="scaffold-card">
+        <h3 class="card-title">Travel Insurance Comparison</h3>
+        <p class="card-subtitle">Source two different quotes from real travel insurance providers for your exact trip details and select the best one.</p>
+        
+        <div class="insurance-grid" style="margin-top: 1.2rem;">
+          <!-- Ins 1 -->
+          <div class="quote-box">
+            <div class="quote-box-title">🛡️ Insurance Option 1</div>
+            <div class="form-group">
+              <label for="ins1-provider">Provider Name<span class="required">*</span></label>
+              <input type="text" id="ins1-provider" class="field-input" placeholder="e.g. Cover-More"/>
+            </div>
+            <div class="form-group">
+              <label for="ins1-medical">Medical Coverage Limit<span class="required">*</span></label>
+              <input type="text" id="ins1-medical" class="field-input" placeholder="e.g. Unlimited Medical Cover"/>
+            </div>
+            <div class="form-group">
+              <label for="ins1-excess">Excess Fee (AUD)<span class="required">*</span></label>
+              <input type="number" id="ins1-excess" class="field-input" placeholder="e.g. 250" min="0"/>
+            </div>
+            <div class="form-group">
+              <label for="ins1-premium">Total Premium Price (AUD)<span class="required">*</span></label>
+              <input type="number" id="ins1-premium" class="field-input" placeholder="e.g. 85" min="0"/>
+            </div>
+            <div class="form-group">
+              <label for="ins1-link">Link / Screenshot Quote Reference<span class="required">*</span></label>
+              <input type="url" id="ins1-link" class="field-input" placeholder="e.g. https://quote.covermore.com.au/..."/>
+            </div>
+          </div>
+
+          <!-- Ins 2 -->
+          <div class="quote-box">
+            <div class="quote-box-title">🛡️ Insurance Option 2</div>
+            <div class="form-group">
+              <label for="ins2-provider">Provider Name</label>
+              <input type="text" id="ins2-provider" class="field-input" placeholder="e.g. Fast Cover"/>
+            </div>
+            <div class="form-group">
+              <label for="ins2-medical">Medical Coverage Limit</label>
+              <input type="text" id="ins2-medical" class="field-input" placeholder="e.g. $10,000,000 Medical Cover"/>
+            </div>
+            <div class="form-group">
+              <label for="ins2-excess">Excess Fee (AUD)</label>
+              <input type="number" id="ins2-excess" class="field-input" placeholder="e.g. 100" min="0"/>
+            </div>
+            <div class="form-group">
+              <label for="ins2-premium">Total Premium Price (AUD)</label>
+              <input type="number" id="ins2-premium" class="field-input" placeholder="e.g. 98" min="0"/>
+            </div>
+            <div class="form-group">
+              <label for="ins2-link">Link / Screenshot Quote Reference</label>
+              <input type="url" id="ins2-link" class="field-input" placeholder="e.g. https://quote.fastcover.com.au/..."/>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <div class="form-group">
+            <label for="ins-selected">Which Insurance Plan did you choose?<span class="required">*</span></label>
+            <select id="ins-selected" class="field-select">
+              <option value="">-- Select Option --</option>
+              <option value="Option 1">Option 1 (e.g. Cover-More)</option>
+              <option value="Option 2">Option 2 (e.g. Fast Cover)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ins-justification">Justification for Selected Plan<span class="required">*</span></label>
+          <p class="card-subtitle" style="margin-bottom: 0.5rem;">Write 2–3 sentences explaining why you selected this policy based on the medical cover limit, excess fee, and coverage for your planned activities.</p>
+          <textarea id="ins-justification" class="field-textarea" rows="3" placeholder="Write your justification here..."></textarea>
+          <div class="word-counter-wrapper">
+            Words: <span class="count" id="ins-justification-words">0</span> / Rec: 40+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== TAB 5: PART D - EMERGENCY PLAN =================== -->
+    <div class="tab-content" id="tab-content-partd">
+      <div class="scaffold-card">
+        <div class="card-header-row">
+          <div>
+            <h3 class="card-title">Emergency Crisis Management Plan</h3>
+            <p class="card-subtitle">Select ONE scenario below and write a comprehensive 3-step action response plan.</p>
+          </div>
+          <span class="marks-badge">6 Marks (D)</span>
+        </div>
+
+        <!-- Scenario Selector Card -->
+        <div class="scenario-selector-wrapper">
+          <label>Select Your Emergency Scenario:<span class="required">*</span></label>
+          <div class="scenario-options">
+            <div class="scenario-card" id="sc-card-theft" onclick="selectScenario('theft')">
+              <div class="sc-title">Choice 1: Theft Crisis</div>
+              <div class="sc-desc">Your passport, wallet, and smartphone are stolen from your hostel accommodation on Day 3.</div>
+            </div>
+            <div class="scenario-card" id="sc-card-medical" onclick="selectScenario('medical')">
+              <div class="sc-title">Choice 2: Medical Crisis</div>
+              <div class="sc-desc">You suffer an injury on a tourist excursion requiring immediate hospitalization and surgery.</div>
+            </div>
+            <div class="scenario-card" id="sc-card-grounding" onclick="selectScenario('grounding')">
+              <div class="sc-title">Choice 3: Grounded Flight</div>
+              <div class="sc-desc">Severe storms cancel all flights home for 4 days, leaving you stranded.</div>
+            </div>
+          </div>
+          <input type="hidden" id="emergency-scenario" value=""/>
+        </div>
+
+        <!-- 3-Step Action Plan Form -->
+        <div id="emergency-form-fields" style="display:none;">
+          <!-- Step 1 -->
+          <div class="form-group">
+            <label for="em-step1">Step 1: First 24 Hours (Immediate Actions)<span class="required">*</span></label>
+            <p class="card-subtitle" style="margin-bottom:0.5rem;">What are your immediate actions? (Who to call, police reports, cancelling credit cards, emergency travel insurance calls).</p>
+            <textarea id="em-step1" class="field-textarea" rows="4" placeholder="Detail your step 1 response here..."></textarea>
+            <div class="word-counter-wrapper">
+              Words: <span class="count" id="em-step1-words">0</span> / Rec: 40+
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="form-group">
+            <label for="em-step2">Step 2: The Australian Embassy Assistance<span class="required">*</span></label>
+            <p class="card-subtitle" style="margin-bottom:0.5rem;">Explain what consular staff at the Australian Embassy CAN assist you with, and what they CANNOT do (e.g. paying bills or buying tickets).</p>
+            <textarea id="em-step2" class="field-textarea" rows="4" placeholder="Detail your step 2 response here..."></textarea>
+            <div class="word-counter-wrapper">
+              Words: <span class="count" id="em-step2-words">0</span> / Rec: 40+
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="form-group">
+            <label for="em-step3">Step 3: Emergency Funds &amp; Insurance Claims<span class="required">*</span></label>
+            <p class="card-subtitle" style="margin-bottom:0.5rem;">Explain how you will contact your insurer to lodge a claim, how you will access emergency funds, and cover immediate accommodation/survival needs.</p>
+            <textarea id="em-step3" class="field-textarea" rows="4" placeholder="Detail your step 3 response here..."></textarea>
+            <div class="word-counter-wrapper">
+              Words: <span class="count" id="em-step3-words">0</span> / Rec: 40+
+            </div>
+          </div>
+        </div>
+
+        <div id="emergency-placeholder-alert" style="text-align:center; padding:2rem; background:var(--bg-card2); border:1px dashed var(--border); border-radius:10px; color:var(--text-muted); font-size:0.9rem;">
+          Please select one of the emergency scenarios above to display the step-by-step response forms.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PERSISTENT FOOTER FOR AUTO-SAVE & SUBMISSION -->
+  <footer class="submission-bar">
+    <div class="sub-status-info">
+      <div class="autosave-tag">
+        <span class="save-spinner" id="save-spinner"></span>
+        <span id="save-indicator">💾 Saved locally</span>
+      </div>
+      <div id="submit-status" style="font-size:0.85rem; font-weight:600;"></div>
+    </div>
+    <button class="btn-submit-final" id="submit-btn" onclick="openSubmitModal()">Submit Final Dossier</button>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

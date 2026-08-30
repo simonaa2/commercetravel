@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teacher Dashboard — Year 10 Commerce Travel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ---- TEACHER LOGIN ---- */
+    .teacher-login-wrapper {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem; background: var(--bg);
+    }
+    .teacher-login-wrapper::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(20, 184, 166, 0.08) 0%, transparent 60%);
+    }
+    .teacher-login-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 3rem 2.5rem;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      position: relative; animation: fadeInUp 0.4s ease both;
+    }
+    .teacher-login-card::before {
+      content: ''; position: absolute; top:0;left:0;right:0; height:2px;
+      border-radius:24px 24px 0 0;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+    }
+    .tl-badge { display:inline-block; background:rgba(20, 184, 166, 0.15); border:1px solid rgba(20, 184, 166, 0.35); color:#2dd4bf; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:0.3rem 1rem; border-radius:100px; margin-bottom:1.2rem; }
+    .tl-title { font-family:var(--font-head); font-size:1.8rem; font-weight:800; color:#fff; margin-bottom:0.4rem; }
+    .tl-sub { font-size:0.88rem; color:var(--text-muted); margin-bottom:1.8rem; }
+    .tl-field label { display:block; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:0.5rem; }
+    .tl-field { margin-bottom:1.2rem; }
+    .tl-input { width:100%; background:var(--bg-card2); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1rem; color:var(--text); font-family:var(--font-body); font-size:1rem; transition:border-color 0.2s,box-shadow 0.2s; }
+    .tl-input:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(20,184,166,0.15); }
+    .tl-btn { width:100%; padding:0.9rem; background:linear-gradient(135deg,var(--teal),var(--gold-dark)); border:none; border-radius:10px; color:#fff; font-family:var(--font-head); font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 4px 20px rgba(20,184,166,0.25); transition:opacity 0.2s,transform 0.15s; }
+    .tl-btn:hover { opacity:0.92; transform:translateY(-1px); }
+    .tl-error { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:8px; color:#fca5a5; font-size:0.85rem; padding:0.7rem 0.9rem; margin-top:0.8rem; display:none; }
+    .tl-error.show { display:block; }
+    .back-link { text-align:center; margin-top:1rem; }
+    .back-link a { font-size:0.78rem; color:var(--text-dim); text-decoration:none; }
+    .back-link a:hover { color:var(--teal); }
+
+    /* ---- DASHBOARD ---- */
+    #dashboard { display:none; }
+    .dash-header { background:linear-gradient(135deg,#091a2e,#0d0b21); border-bottom:1px solid var(--border); padding:2rem 1.5rem; }
+    .dash-header-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .dash-title { font-family:var(--font-head); font-size:1.5rem; font-weight:800; color:#fff; }
+    .dash-title span { background:linear-gradient(135deg,#2dd4bf,#fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .dash-actions { display:flex; gap:0.7rem; flex-wrap:wrap; }
+    .dash-btn { padding:0.55rem 1.1rem; border-radius:8px; font-family:var(--font-body); font-size:0.85rem; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
+    .dash-btn-outline { background:transparent; border:1px solid var(--border-light); color:var(--text-muted); }
+    .dash-btn-outline:hover { border-color:var(--teal); color:var(--teal); }
+    .dash-btn-primary { background:linear-gradient(135deg,var(--teal),var(--gold-dark)); color:#fff; }
+    .dash-btn-primary:hover { opacity:0.88; }
+
+    .dash-container { max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+
+    /* Stats row */
+    .dash-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:0.8rem; margin-bottom:2rem; }
+    .dash-stat { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.2rem 1.4rem; }
+    .ds-value { font-family:var(--font-head); font-size:2rem; font-weight:800; color:#fff; }
+    .ds-label { font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:0.2rem; }
+    .ds-blue .ds-value { color:var(--teal); }
+    .ds-green .ds-value { color:var(--green); }
+    .ds-amber .ds-value { color:var(--gold); }
+
+    /* Controls */
+    .dash-controls { display:flex; gap:0.7rem; margin-bottom:1.2rem; flex-wrap:wrap; align-items:center; }
+    .dash-search { flex:1; min-width:200px; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.6rem 1rem; color:var(--text); font-family:var(--font-body); font-size:0.88rem; }
+    .dash-search:focus { outline:none; border-color:var(--teal); }
+    .sort-btn { padding:0.55rem 1rem; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; color:var(--text-muted); font-size:0.82rem; cursor:pointer; }
+    .sort-btn.active { border-color:var(--teal); color:var(--teal); }
+
+    /* Student cards */
+    .students-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1rem; }
+    .student-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; transition:border-color 0.2s,transform 0.2s; cursor:pointer; }
+    .student-card:hover { border-color:var(--border-light); transform:translateY(-2px); }
+    .student-card.expanded { grid-column:1/-1; border-color:var(--teal); }
+    .sc-card-header { padding:1.2rem 1.4rem; display:flex; align-items:center; gap:0.9rem; }
+    .sc-avatar { width:2.5rem; height:2.5rem; border-radius:50%; background:linear-gradient(135deg,var(--teal),var(--gold-dark)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem; color:#fff; flex-shrink:0; }
+    .sc-name { font-weight:600; font-size:0.95rem; color:#e2e8f0; }
+    .sc-meta { font-size:0.75rem; color:var(--text-muted); margin-top:0.1rem; }
+    .sc-expand-icon { margin-left:auto; color:var(--text-dim); font-size:0.9rem; transition:transform 0.2s; }
+    .student-card.expanded .sc-expand-icon { transform:rotate(180deg); }
+
+    .sc-preview { padding:0 1.4rem 1.2rem; display:flex; flex-wrap:wrap; gap:0.5rem; }
+    .sc-tag { background:var(--bg-card2); border:1px solid var(--border); border-radius:100px; padding:0.2rem 0.7rem; font-size:0.73rem; color:var(--text-muted); }
+    .sc-tag.filled { border-color:rgba(16,185,129,0.3); color:#86efac; background:rgba(16,185,129,0.07); }
+    .sc-tag.empty { border-color:rgba(239,68,68,0.2); color:#fca5a5; background:rgba(239,68,68,0.06); }
+
+    /* Expanded detail */
+    .sc-detail { display:none; border-top:1px solid var(--border); padding:1.5rem; cursor:default; }
+    .student-card.expanded .sc-detail { display:block; }
+    .detail-section { margin-bottom:1.5rem; }
+    .detail-section-title { font-family:var(--font-head); font-size:0.88rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:0.8rem; border-bottom:1px dashed var(--border-light); padding-bottom:0.3rem; }
+    .detail-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.2rem; }
+    .detail-field { background:var(--bg-card2); border:1px solid var(--border); border-radius:8px; padding:0.8rem 1rem; }
+    .detail-field.span-all { grid-column:1/-1; }
+    .df-label { font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; font-weight:600; }
+    .df-value { font-size:0.88rem; color:#fff; margin-top:0.2rem; white-space:pre-wrap; word-break:break-word; }
+    .df-value.empty { color:var(--text-dim); font-style:italic; }
+
+    /* Table styles in detail */
+    .detail-table { width:100%; border-collapse:collapse; font-size:0.82rem; margin-top:0.5rem; }
+    .detail-table th { background:var(--bg-card); color:var(--text-muted); padding:0.5rem; text-align:left; border-bottom:1px solid var(--border); }
+    .detail-table td { padding:0.5rem; border-bottom:1px solid var(--border); }
+
+    .dash-loading { text-align:center; padding:3rem; display:flex; flex-direction:column; align-items:center; gap:0.8rem; color:var(--text-muted); }
+    .dash-empty { text-align:center; padding:3rem; color:var(--text-muted); }
+    .dash-empty-icon { font-size:3rem; margin-bottom:0.5rem; }
+    @keyframes fadeInUp { from {opacity:0;transform:translateY(12px);} to {opacity:1;transform:translateY(0);} }
+  </style>
+</head>
+<body>
+
+  <!-- TEACHER LOGIN SECTION -->
+  <div id="teacher-login" class="teacher-login-wrapper">
+    <div class="teacher-login-card">
+      <div class="tl-badge">Teacher Access Only</div>
+      <h1 class="tl-title">Commerce Dashboard</h1>
+      <p class="tl-sub">Enter the dashboard password to review Year 10 Commerce submissions.</p>
+
+      <div class="tl-field">
+        <label for="teacher-pw">Password</label>
+        <input type="password" id="teacher-pw" class="tl-input" placeholder="e.g. travel10" autocomplete="current-password"/>
+      </div>
+
+      <button class="tl-btn" onclick="teacherLogin()">Login to Dashboard</button>
+      <div class="tl-error" id="tl-error"></div>
+
+      <div class="back-link">
+        <a href="index.html">← Back to student workbook</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD WORKSPACE -->
+  <div id="dashboard">
+    <header class="dash-header">
+      <div class="dash-header-inner">
+        <h1 class="dash-title">Year 10 Commerce <span>Teacher Dashboard</span></h1>
+        
+        <div class="dash-actions">
+          <a href="#" id="sheet-link" target="_blank" class="dash-btn dash-btn-outline" style="text-decoration:none; display:none; align-items:center; gap:0.4rem;">
+            <span>📊</span> Open Google Sheet
+          </a>
+          <button class="dash-btn dash-btn-outline" onclick="loadSubmissions()">🔄 Refresh Data</button>
+          <button class="dash-btn dash-btn-outline" onclick="exportCSV()">📥 Export CSV</button>
+          <button class="dash-btn dash-btn-primary" onclick="teacherLogout()">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="dash-container">
+      <!-- STATS STRIP -->
+      <div class="dash-stats">
+        <div class="dash-stat ds-blue">
+          <div class="ds-value" id="stat-total">0</div>
+          <div class="ds-label">Total Submissions</div>
+        </div>
+        <div class="dash-stat ds-green">
+          <div class="ds-value" id="stat-today">0</div>
+          <div class="ds-label">Submitted Today</div>
+        </div>
+        <div class="dash-stat ds-amber">
+          <div class="ds-value" id="stat-under-budget">0%</div>
+          <div class="ds-label">Under $10k Cap</div>
+        </div>
+        <div class="dash-stat">
+          <div class="ds-value" style="font-size: 1.15rem; line-height: 2.2rem;" id="stat-last">—</div>
+          <div class="ds-label">Last Submission</div>
+        </div>
+      </div>
+
+      <!-- FILTERS AND SEARCH -->
+      <div class="dash-controls">
+        <input type="text" id="dash-search" class="dash-search" placeholder="Search students by name..." oninput="filterStudents()"/>
+        <button id="sort-time" class="sort-btn active" onclick="sortBy('time')">Sort: Recent First</button>
+        <button id="sort-name" class="sort-btn" onclick="sortBy('name')">Sort: A-Z Name</button>
+      </div>
+
+      <!-- SUBMISSIONS GRID -->
+      <div id="students-container">
+        <!-- Rendered by JS -->
+      </div>
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="teacher.js"></script>
+</body>
+</html>

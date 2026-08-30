@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Year 10 Commerce — Travel Portfolio Scaffold</title>
+  <meta name="description" content="Student Portal for Year 10 Commerce Travel Assessment Scaffold."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+    .login-wrapper::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 20% 40%, rgba(20, 184, 166, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 70% at 80% 60%, rgba(217, 119, 6, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      position: relative;
+      animation: fadeInUp 0.4s ease both;
+    }
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 24px 24px 0 0;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+    }
+    .login-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(217, 119, 6, 0.1));
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      color: #99f6e4;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.3rem 1rem;
+      border-radius: 100px;
+      margin-bottom: 1.2rem;
+    }
+    .login-title {
+      font-family: var(--font-head);
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.02em;
+    }
+    .login-title .accent {
+      background: linear-gradient(135deg, #2dd4bf, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .login-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+    .login-field {
+      margin-bottom: 1.2rem;
+    }
+    .login-field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.5rem;
+    }
+    .login-input {
+      width: 100%;
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .login-input:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+    }
+    .login-btn {
+      width: 100%;
+      padding: 0.95rem;
+      background: linear-gradient(135deg, var(--teal), var(--gold-dark));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: var(--font-head);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(20, 184, 166, 0.2);
+      transition: opacity 0.2s, transform 0.15s;
+      margin-top: 0.5rem;
+    }
+    .login-btn:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+    .login-btn:active {
+      transform: translateY(0);
+    }
+    .login-error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      color: #fca5a5;
+      font-size: 0.85rem;
+      padding: 0.7rem 0.9rem;
+      margin-top: 1rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .login-error.show {
+      display: flex;
+    }
+    .login-footer {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .login-footer a {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .login-footer a:hover {
+      color: var(--teal);
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-badge">Assessment Task 3</div>
+      <h1 class="login-title">Travel <span class="accent">Consultant</span></h1>
+      <p class="login-subtitle">Year 10 Commerce Dossier &amp; Budget Workbook</p>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="login-field">
+          <label for="student-name">Full Name</label>
+          <input type="text" id="student-name" class="login-input" required placeholder="e.g. John Smith" autocomplete="name"/>
+        </div>
+
+        <div class="login-field">
+          <label for="class-code">Class Code</label>
+          <input type="text" id="class-code" class="login-input" required placeholder="e.g. COMM10_2026" autocomplete="off"/>
+        </div>
+
+        <button type="submit" class="login-btn">Start Workbook</button>
+
+        <div class="login-error" id="login-error">
+          <span>⚠️</span> <span id="error-message">Incorrect Class Code. Please check and try again.</span>
+        </div>
+      </form>
+
+      <div class="login-footer">
+        <a href="teacher.html">Teacher dashboard ➔</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    // Guard: If already logged in, skip login unless logout requested
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('logout')) {
+      sessionStorage.removeItem('studentName');
+      sessionStorage.removeItem('classCode');
+    } else {
+      const existingName = sessionStorage.getItem('studentName');
+      const existingCode = sessionStorage.getItem('classCode');
+      if (existingName && existingCode === CONFIG.CLASS_CODE) {
+        window.location.href = 'scaffold.html';
+      }
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const name = document.getElementById('student-name').value.trim();
+      const code = document.getElementById('class-code').value.trim();
+      const errorDiv = document.getElementById('login-error');
+      const errorMsg = document.getElementById('error-message');
+
+      if (!name) {
+        showError("Please enter your full name.");
+        return;
+      }
+
+      if (code !== CONFIG.CLASS_CODE) {
+        showError("Incorrect Class Code. Please check with your teacher.");
+        return;
+      }
+
+      // Store in session storage
+      sessionStorage.setItem('studentName', name);
+      sessionStorage.setItem('classCode', code);
+
+      // Redirect to main scaffold
+      window.location.href = 'scaffold.html';
+    }
+
+    function showError(msg) {
+      const errorDiv = document.getElementById('login-error');
+      const errorMsg = document.getElementById('error-message');
+      errorMsg.textContent = msg;
+      errorDiv.classList.add('show');
+    }
+  </script>
+</body>
+</html>
