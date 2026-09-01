@@ -29,7 +29,7 @@ const CONFIG = {
     { name: 'Dominic Mobberley-Barreto', password: 'dominic5729' },
     { name: 'Noah Ntzeremes', password: 'noah8214' },
     { name: 'Patrick O\'Connor', password: 'patrick6392' },
-    { name: 'Wachirawit (Shine) Sajjathitiyanond', password: 'shine7029' },
+    { name: 'Shine', password: 'shine4821' },
     { name: 'Jacob Salem', password: 'jacob5183' },
     { name: 'Luca Toffolo', password: 'luca4920' },
     { name: 'James Tzirtzilakis', password: 'james6304' },
